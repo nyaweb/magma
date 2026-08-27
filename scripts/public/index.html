@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Magma Docker Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vendor/xterm/xterm.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="danger-strip" role="alert"><strong>UNSAFE PUBLIC MODE</strong><span lang="es">Sin autenticacion. Acceso Docker equivalente a root.</span></div>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#dashboard" aria-label="Magma dashboard"><span class="brand-mark">M</span><span>MAGMA<small>DOCKER CONTROL</small></span></a>
+      <nav id="nav" aria-label="Primary navigation">
+        <a href="#dashboard" data-view="dashboard">Overview</a>
+        <a href="#hosts" data-view="hosts">Hosts</a>
+        <a href="#containers" data-view="containers">Containers</a>
+        <a href="#images" data-view="images">Images</a>
+        <a href="#compose" data-view="compose">Compose</a>
+        <a href="#templates" data-view="templates">Templates</a>
+        <a href="#experiments" data-view="experiments">Experiments</a>
+      </nav>
+      <div class="sidebar-foot"><span class="pulse" id="eventPulse"></span><span id="eventState" role="status" aria-live="polite">event stream offline</span><small>Magma 0.1.0</small></div>
+    </aside>
+    <section class="workspace">
+      <header class="topbar">
+        <button class="mobile-menu" id="menuButton" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">M</button>
+        <div><span class="eyebrow" id="viewEyebrow">CONTROL PLANE</span><h1 id="viewTitle">Overview</h1></div>
+        <div class="host-control"><label for="hostSelect">ACTIVE HOST</label><select id="hostSelect"></select><button class="icon-button" id="refreshButton" title="Refresh" aria-label="Refresh">R</button></div>
+      </header>
+      <main id="content" tabindex="-1"><div class="loading-block">Initializing Magma...</div></main>
+    </section>
+  </div>
+  <dialog id="modal" aria-labelledby="modalTitle"><div class="modal-card"><header><div><span class="eyebrow">MAGMA OPERATION</span><h2 id="modalTitle"></h2></div><button type="button" id="modalClose" class="close-button" aria-label="Close">X</button></header><div id="modalBody" class="modal-body"></div></div></dialog>
+  <dialog id="terminalModal" class="terminal-dialog" aria-labelledby="terminalTitle"><div class="terminal-card"><header><div><span class="eyebrow">BUNTTY SESSION</span><h2 id="terminalTitle">Terminal</h2></div><div class="terminal-actions"><span id="terminalState" role="status" aria-live="polite">connecting</span><button type="button" id="terminalControl" class="button">Take control</button><button type="button" id="terminalClose" class="close-button" aria-label="Close">X</button></div></header><div id="terminal"></div></div></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/vendor/xterm/xterm.js"></script>
+  <script src="/vendor/addon-fit/addon-fit.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

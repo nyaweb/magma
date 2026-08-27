@@ -1,0 +1,15 @@
+{
+  "name": "magma",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@xterm/addon-fit": "0.10.0",
+    "@xterm/xterm": "5.5.0"
+  },
+  "scripts": {
+    "start": "bun run server.js",
+    "test": "bun test",
+    "check": "bun build server.js --target=bun --outfile=/tmp/magma-server.js && bun build public/js/app.js --target=browser --outfile=/tmp/magma-client.js"
+  }
+}

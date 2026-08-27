@@ -1,0 +1,62 @@
+name: magma
+
+services:
+  magma:
+    image: magma:0.1.0
+    build:
+      context: ./scripts
+      args:
+        MAGMA_REVISION: ${MAGMA_REVISION:-unknown}
+    container_name: magma
+    hostname: magma
+    init: true
+    ports:
+      - "${MAGMA_BIND_ADDRESS:-0.0.0.0}:${MAGMA_PUBLIC_PORT:-4000}:4000"
+    volumes:
+      - type: bind
+        source: ${DOCKER_SOCKET:-/var/run/docker.sock}
+        target: /var/run/docker.sock
+        bind:
+          create_host_path: false
+      - type: volume
+        source: magma-data
+        target: /data
+    environment:
+      MAGMA_HOST: 0.0.0.0
+      MAGMA_PORT: "4000"
+      MAGMA_DATA_DIR: /data
+      MAGMA_CONTAINER_NAME: magma
+      MAGMA_UNSAFE_PUBLIC: "1"
+      MAGMA_ALLOWED_ORIGINS: ${MAGMA_ALLOWED_ORIGINS:-}
+      MAGMA_MAX_OUTPUT: ${MAGMA_MAX_OUTPUT:-500000}
+      MAGMA_MAX_COMMAND_OUTPUT: ${MAGMA_MAX_COMMAND_OUTPUT:-5000000}
+      MAGMA_MAX_TERMINAL_SESSIONS: ${MAGMA_MAX_TERMINAL_SESSIONS:-100}
+      MAGMA_MAX_TERMINAL_CLIENTS: ${MAGMA_MAX_TERMINAL_CLIENTS:-25}
+      MAGMA_MAX_TERMINAL_MESSAGE: ${MAGMA_MAX_TERMINAL_MESSAGE:-16384}
+      MAGMA_TERMINAL_INPUT_RATE: ${MAGMA_TERMINAL_INPUT_RATE:-65536}
+      MAGMA_MAX_TERMINAL_PENDING_INPUT: ${MAGMA_MAX_TERMINAL_PENDING_INPUT:-262144}
+      MAGMA_TERMINAL_IDLE_MS: ${MAGMA_TERMINAL_IDLE_MS:-3600000}
+      MAGMA_MAX_EVENT_STREAMS: ${MAGMA_MAX_EVENT_STREAMS:-100}
+      MAGMA_MAX_WEBSOCKET_BACKPRESSURE: ${MAGMA_MAX_WEBSOCKET_BACKPRESSURE:-65536}
+    labels:
+      io.magma.managed: "true"
+      io.magma.protected: "true"
+      io.magma.component: control-plane
+    healthcheck:
+      test: ["CMD", "bun", "-e", "const r = await fetch('http://127.0.0.1:4000/api/ready'); process.exit(r.ok ? 0 : 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    restart: unless-stopped
+
+volumes:
+  magma-data:
+    name: ${MAGMA_VOLUME_NAME:-magma-data}
+    labels:
+      io.magma.managed: "true"
+      io.magma.protected: "true"
