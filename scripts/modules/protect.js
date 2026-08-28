@@ -33,4 +33,4 @@ export const imageFromList = (i) => {
   return { id: i.ID, repository, tag, ref: joinRef(repository, tag), size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", protected: repository === "magma", kind: "image" };
 };
 
-export const isProtectedImageRef = (ref) => splitRef(ref).repository === "magma";
+export const isProtectedImageRef = (ref, images) => splitRef(ref).repository === "magma" || Array.isArray(images) && images.length && images?.some((i) => i.protected && (ref === i.ref || ref === i.id || String(i.id).startsWith(ref)));
