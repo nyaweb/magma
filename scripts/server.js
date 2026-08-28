@@ -3,6 +3,7 @@ import { handleApi, snapshot } from "./modules/api.js";
 import { docker } from "./modules/util.js";
 import { VERSION } from "./modules/config.js";
 import { resolvePublic } from "./modules/paths.js";
+import { security, withSec } from "./modules/security.js";
 
 const PORT = Number(process.env.MAGMA_PORT || 3100);
 const clients = new Set();
@@ -34,14 +35,7 @@ async function pumpEvents() {
 }
 pumpEvents();
 
-const security = {
-  "Cache-Control": "no-store",
-  "X-Content-Type-Options": "nosniff",
-  "Referrer-Policy": "no-referrer",
-  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' ws: wss:; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
-};
 const html = { headers: { "Content-Type": "text/html; charset=utf-8", ...security } };
-const withSec = (res) => { for (const [k, v] of Object.entries(security)) res.headers.set(k, v); return res; };
 const server = serve({
   port: PORT, hostname: "0.0.0.0",
   async fetch(req, srv) {
@@ -50,10 +44,10 @@ const server = serve({
       : p.startsWith("/api/") ? withSec(await handleApi(req, url))
       : p.startsWith("/public/") ? (() => {
         const path = resolvePublic(p);
-        return path ? withSec(new Response(Bun.file(path))) : new Response("Not Found", { status: 404 });
+        return path ? withSec(new Response(Bun.file(path))) : withSec(new Response("Not Found", { status: 404 }));
       })()
       : req.method === "GET" && p === "/" ? new Response(Bun.file("./public/index.html"), html)
-      : new Response("Not Found", { status: 404 });
+      : withSec(new Response("Not Found", { status: 404 }));
   },
   websocket: {
     open(ws) { clients.add(ws); send(ws, { type: "hello" }); pushSnapshot(); },
