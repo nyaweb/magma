@@ -55,4 +55,7 @@ describe("isProtectedImageRef", () => {
   test("digest prefix protected", () => expect(isProtectedImageRef("sha256:abcd", [{ id: "sha256:abcd9999", ref: "magma:1.4.0", protected: true }])).toBe(true));
   test("digest prefix debian", () => expect(isProtectedImageRef("sha256:abcd", [{ id: "sha256:abcd9999", ref: "debian:bookworm-slim", protected: false }])).toBe(false));
   test("slim stays false", () => expect(isProtectedImageRef("magma/slim:1")).toBe(false));
+  test("short id matches sha256 id", () => expect(isProtectedImageRef("c2ade414e734", [
+    { id: "sha256:c2ade414e734abcd9999", ref: "magma:1.4.0", protected: true },
+  ])).toBe(true));
 });

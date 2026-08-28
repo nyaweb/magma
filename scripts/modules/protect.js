@@ -33,4 +33,17 @@ export const imageFromList = (i) => {
   return { id: i.ID, repository, tag, ref: joinRef(repository, tag), size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", protected: repository === "magma", kind: "image" };
 };
 
-export const isProtectedImageRef = (ref, images) => splitRef(ref).repository === "magma" || Array.isArray(images) && images.length && images?.some((i) => i.protected && (ref === i.ref || ref === i.id || String(i.id).startsWith(ref)));
+export const isProtectedImageRef = (ref, images) => {
+  if (splitRef(ref).repository === "magma") return true;
+  if (!Array.isArray(images) || !images.length) return false;
+  const s = String(ref || "");
+  if (!s) return false;
+  const bare = s.replace(/^sha256:/i, "");
+  return images.some((i) => {
+    if (!i.protected) return false;
+    if (s === i.ref || s === i.id) return true;
+    const idBare = String(i.id || "").replace(/^sha256:/i, "");
+    if (!bare || !idBare) return false;
+    return idBare.startsWith(bare) || (bare.length >= 12 && idBare.startsWith(bare.slice(0, idBare.length)));
+  });
+};

@@ -47,6 +47,7 @@ export const removeContainer = async (ref, { force = true } = {}) => {
 };
 export const removeImage = async (ref, { force = false } = {}) => {
   if (isProtectedImageRef(ref)) throw new Error(`${ref} está protegido`);
+  if (isProtectedImageRef(ref, await listImages())) throw new Error(`${ref} está protegido`);
   const out = await verb(["rmi"], requireRef(ref), force);
   await writeJson(LINEAGE, pruneLineage(await loadLineage(), ref));
   return out;
