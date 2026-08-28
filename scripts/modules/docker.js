@@ -37,19 +37,20 @@ const assertMutable = async (ref) => {
 };
 
 const verb = (cmd, ref, force) => need([...cmd, ...(force ? ["-f"] : []), requireRef(ref)], cmd.join(" ")).then((out) => ({ ok: true, ref, out: out.trim() }));
-export const startContainer = (ref) => verb(["start"], ref);
+export const persistPrune = (ref) => locked(async () => writeJson(LINEAGE, pruneLineage(await loadLineage(), ref)));
+export const startContainer = async (ref) => { requireRef(ref); await assertMutable(ref); return verb(["start"], ref); };
 export const stopContainer = async (ref) => { requireRef(ref); await assertMutable(ref); return verb(["stop"], ref); };
 export const removeContainer = async (ref, { force = true } = {}) => {
   requireRef(ref); await assertMutable(ref);
   const out = await verb(["rm"], ref, force);
-  await writeJson(LINEAGE, pruneLineage(await loadLineage(), ref));
+  await persistPrune(ref);
   return out;
 };
 export const removeImage = async (ref, { force = false } = {}) => {
   if (isProtectedImageRef(ref)) throw new Error(`${ref} está protegido`);
   if (isProtectedImageRef(ref, await listImages())) throw new Error(`${ref} está protegido`);
   const out = await verb(["rmi"], requireRef(ref), force);
-  await writeJson(LINEAGE, pruneLineage(await loadLineage(), ref));
+  await persistPrune(ref);
   return out;
 };
 
