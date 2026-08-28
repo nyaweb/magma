@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { cap, nextFreeNames, safeName, slug, stripName } from "../modules/names.js";
+import { cap, joinRef, nextFreeNames, safeName, slug, splitRef, stripName } from "../modules/names.js";
 import { MAX_N } from "../modules/config.js";
 
 describe("slug", () => {
@@ -28,4 +28,10 @@ describe("nextFreeNames", () => {
 
 describe("stripName", () => {
   test("drops leading slash", () => expect(stripName("/magma")).toBe("magma"));
+});
+
+describe("splitRef", () => {
+  test("repo:tag", () => expect(splitRef("debian:bookworm-slim")).toEqual({ repository: "debian", tag: "bookworm-slim" }));
+  test("no tag", () => expect(splitRef("debian")).toEqual({ repository: "debian", tag: "<none>" }));
+  test("join", () => expect(joinRef("debian", "12")).toBe("debian:12"));
 });

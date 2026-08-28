@@ -1,11 +1,17 @@
 import { describe, expect, test } from "bun:test";
-import { containerFromPs, imageFromList, isProtectedName, parseLabels } from "../modules/protect.js";
+import { asLabels, containerFromPs, imageFromList, isProtectedName, parseLabels } from "../modules/protect.js";
 
 describe("parseLabels", () => {
   test("empty", () => expect(parseLabels("")).toEqual({}));
   test("k=v list", () => expect(parseLabels("io.magma.protected=true,foo=bar")).toEqual({
     "io.magma.protected": "true", foo: "bar",
   }));
+});
+
+describe("asLabels", () => {
+  test("object passthrough", () => expect(asLabels({ a: "1" })).toEqual({ a: "1" }));
+  test("string", () => expect(asLabels("a=1")).toEqual({ a: "1" }));
+  test("null", () => expect(asLabels(null)).toEqual({}));
 });
 
 describe("isProtectedName", () => {
@@ -22,6 +28,10 @@ describe("containerFromPs", () => {
   });
   test("flags protected", () => {
     const c = containerFromPs({ ID: "x", Names: "/magma", Image: "magma:1.4.0", State: "running", Labels: "io.magma.protected=true" });
+    expect(c.protected).toBe(true);
+  });
+  test("inspect-style label object", () => {
+    const c = containerFromPs({ ID: "x", Names: "x", Image: "d", State: "running", Labels: { "io.magma.protected": "true" } });
     expect(c.protected).toBe(true);
   });
 });

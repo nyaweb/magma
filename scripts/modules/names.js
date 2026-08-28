@@ -23,3 +23,12 @@ export const nextFreeNames = (prefix, n, taken = []) => {
 };
 
 export const stripName = (name) => String(name || "").replace(/^\//, "");
+
+export const splitRef = (ref) => {
+  const s = String(ref || "").trim();
+  const i = s.lastIndexOf(":");
+  if (i <= 0) return { repository: s || "<none>", tag: "<none>" };
+  return { repository: s.slice(0, i), tag: s.slice(i + 1) };
+};
+
+export const joinRef = (repository, tag) => `${repository || "<none>"}:${tag || "<none>"}`;

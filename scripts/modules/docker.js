@@ -2,8 +2,8 @@ import { DATA, lines, need, readJson, writeJson, locked } from "./util.js";
 import { SELF } from "./config.js";
 import { cap, nextFreeNames, stripName } from "./names.js";
 import { containerFromPs, imageFromList, isProtectedName } from "./protect.js";
-import { recipe } from "./recipe.js";
-import { bumpSeq, matchLineage, peekSeq } from "./tags.js";
+import { assertFrom, recipe } from "./recipe.js";
+import { bumpSeq, makeEntry, matchLineage, peekSeq } from "./tags.js";
 
 export { MAX_N } from "./config.js";
 export { APT, recipe } from "./recipe.js";
@@ -76,7 +76,7 @@ export const commitContainer = ({ container, repository, message, author = "magm
   if (!container || !repository) throw new Error("container y repository requeridos");
   await assertMutable(container);
   const imageId = (await need(["commit", "-a", author, ...(message ? ["-m", message] : []), container, repository], "commit failed")).trim();
-  const entry = { at: new Date().toISOString(), container, repository, message: message || "", imageId };
+  const entry = makeEntry({ container, repository, message: message || "", imageId });
   await writeJson(LINEAGE, [...await loadLineage(), entry]);
   return { ok: true, ...entry };
 });
@@ -88,7 +88,7 @@ export const commitBatch = async ({ container, n = 1, repo = "magma/snapshot", m
 };
 
 export const buildImage = async ({ tag = "magma/slim:upgraded", from = "debian:bookworm-slim", dockerfile } = {}) => {
-  const df = (dockerfile || recipe(from)).replace(/\n?$/, "\n");
+  const df = assertFrom(dockerfile || recipe(from)).replace(/\n?$/, "\n");
   const out = (await need(["build", "-t", tag, "-f", "-", "."], "build failed", df)).trim();
   return { ok: true, tag, dockerfile: df, out };
 };

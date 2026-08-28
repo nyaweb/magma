@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { bumpSeq, matchLineage, peekSeq } from "../modules/tags.js";
+import { bumpSeq, makeEntry, matchLineage, peekSeq } from "../modules/tags.js";
 
 describe("seq", () => {
   test("peek empty is :1", () => expect(peekSeq({}, "magma/snapshot")).toBe("magma/snapshot:1"));
@@ -22,4 +22,13 @@ describe("matchLineage", () => {
   test("by repo", () => expect(matchLineage(rows, "magma/x:2")).toHaveLength(1));
   test("by image prefix", () => expect(matchLineage(rows, "sha256:abcd")).toHaveLength(1));
   test("empty", () => expect(matchLineage(null, "lab")).toEqual([]));
+});
+
+describe("makeEntry", () => {
+  test("fills message", () => {
+    const e = makeEntry({ container: "lab", repository: "x:1", imageId: "sha256:aa" });
+    expect(e.message).toBe("");
+    expect(e.at).toMatch(/^\d{4}-/);
+    expect(e.container).toBe("lab");
+  });
 });

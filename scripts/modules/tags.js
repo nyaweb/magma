@@ -8,3 +8,6 @@ export const bumpSeq = (seq, base = "magma/snapshot") => {
 
 export const matchLineage = (entries, ref) =>
   (entries || []).filter((e) => [e.container, e.repository].includes(ref) || (ref && e.imageId?.startsWith(ref)));
+
+export const makeEntry = ({ container, repository, message = "", imageId, at = new Date().toISOString() }) =>
+  ({ at, container, repository, message, imageId });
