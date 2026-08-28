@@ -1,3 +1,19 @@
+# Ronda 14 — runself
+
+CHECK: `isProtectedName(name`
+FILES: `scripts/modules/docker.js, scripts/test/docker.test.js`
+
+Ganador: **slot 06**.
+
+```
+STATUS: PASS
+FILES: scripts/modules/docker.js, scripts/test/docker.test.js, RESULT.md
+SUMMARY: Added a protected-name guard to runContainer so the control-plane name is rejected before any Docker call, and added a regression test for name "magma"; bun test ./test passed with 102 tests and 0 failures.
+```
+
+### `scripts/modules/docker.js` (ganador)
+
+```js
 import { DATA, lines, need, readJson, writeJson, locked } from "./util.js";
 import { SELF } from "./config.js";
 import { cap, nextFreeNames, requireRef, stripName } from "./names.js";
@@ -103,3 +119,58 @@ export const buildImage = async ({ tag = "magma/slim:upgraded", from = "debian:b
   const out = (await need(["build", "-t", tag, "-f", "-", "."], "build failed", df)).trim();
   return { ok: true, tag, dockerfile: df, out };
 };
+```
+
+### `scripts/test/docker.test.js` (ganador)
+
+```js
+import { describe, expect, test } from "bun:test";
+import "./env.js";
+import { removeImage, runContainer } from "../modules/docker.js";
+
+describe("removeImage", () => {
+  test("blocks protected magma images before docker rmi", async () => {
+    await expect(removeImage("magma:1.4.0")).rejects.toThrow(/protegido/);
+  });
+});
+
+test("runContainer blocks protected magma name before docker run", async () => {
+  await expect(runContainer({ image: "debian:bookworm-slim", name: "magma" })).rejects.toThrow(/protegido/);
+});
+```
+
+## Score
+
+```
+slot	model	status	check	tested	beats	diff	plus	minus
+01	openai/gpt-5.4-mini	PASS	True	True	True	10	8	2
+02	openai/gpt-5.4-mini-fast	PASS	True	True	True	10	8	2
+03	opencode/big-pickle	PASS	True	True	True	10	8	2
+04	opencode/muse-spark-1.2-contributor-free	PASS	True	True	True	10	8	2
+05	openai/gpt-5.6-sol-fast	PASS	True	True	True	10	8	2
+06	openai/gpt-5.6-luna-fast	PASS	True	True	True	8	6	2
+07	openai/gpt-5.5	PASS	True	True	True	10	8	2
+08	openai/gpt-5.5-fast	PASS	True	True	True	10	8	2
+09	opencode/hy3-free	PASS	True	True	True	10	8	2
+10	openai/gpt-5.3-codex-spark	PASS	True	True	True	10	8	2
+```
+
+## Prompt
+
+```
+You are competing on ONE Magma code change. Do not do other work.
+
+Goal: runContainer({ image, name: "magma" }) must not call docker. The control-plane name is SELF (default "magma") and isProtectedName already treats it as protected.
+
+Implement:
+1. In runContainer, if name is set and isProtectedName(name, {}, SELF) throw `${name} está protegido` BEFORE need/docker.
+2. bun tests in docker.test.js: runContainer({ image: "debian:bookworm-slim", name: "magma" }) rejects /protegido/. Existing removeImage test stays.
+3. Keep existing tests green. Run: cd scripts && bun test ./test
+
+Rules: smallest correct diff. No unrelated refactors, no new dependencies, no format-only churn.
+
+When done write RESULT.md at the copy root with exactly:
+STATUS: PASS or FAIL
+FILES: comma-separated paths
+SUMMARY: one paragraph, what you changed and bun test result.
+```
