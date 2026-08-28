@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import "./env.js";
 import { pickCloneName } from "../modules/actions.js";
 
 describe("pickCloneName", () => {

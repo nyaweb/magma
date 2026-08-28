@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import "./env.js";
 import { handleApi } from "../modules/api.js";
 import { VERSION } from "../modules/config.js";
 

@@ -1,6 +1,7 @@
-import { STACKS, run } from "./util.js";
+import { DATA, STACKS, readJson, run, writeJson } from "./util.js";
 import { recipe } from "./recipe.js";
 import { safeName } from "./names.js";
+import { pruneLineage } from "./tags.js";
 
 export { safeName };
 
@@ -58,6 +59,8 @@ export const removeStack = async (name, { down = true } = {}) => {
   const n = safeName(name);
   down && await composeDown(n).catch(() => {});
   await run("rm", ["-rf", stackDir(n)]);
+  const lineage = `${DATA}/lineage.json`;
+  await writeJson(lineage, pruneLineage(await readJson(lineage, []), n));
   return { ok: true, name: n, removed: true };
 };
 export const readStack = async (name) => {
