@@ -9,7 +9,11 @@ import { docker, json } from "./util.js";
 import { VERSION } from "./config.js";
 
 const fail = (err) => json({ error: String(err?.message || err) }, 400);
-const body = (req) => req.json().catch(() => ({}));
+const body = async (req) => {
+  const text = await req.text();
+  if (!text.trim()) return {};
+  try { return JSON.parse(text); } catch { throw new Error("invalid json"); }
+};
 const tag = (repo) => nextMagmaTag(repo || "magma/snapshot");
 
 export const snapshot = async () => {

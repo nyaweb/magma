@@ -1,5 +1,5 @@
 NN: 05
-CHECK: mkdir
+CHECK: mkdirSync
 FILES: scripts/modules/util.js, scripts/test/util.test.js
 
 ---prompt---

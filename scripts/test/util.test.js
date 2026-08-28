@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { lines, locked } from "../modules/util.js";
+import { lines, locked, readJson, writeJson } from "../modules/util.js";
+
+test("writeJson creates parent directories", async () => {
+  const p = `/tmp/magma-util-${crypto.randomUUID()}/nested/data.json`;
+  await writeJson(p, { ok: true });
+  expect(await readJson(p)).toEqual({ ok: true });
+});
 
 describe("lines", () => {
   test("parses jsonl", () => {

@@ -33,6 +33,11 @@ describe("handleApi", () => {
     expect(status).toBe(400);
     expect(data.error).toMatch(/ref/);
   });
+  test("stop invalid json", async () => {
+    const { status, data } = await json(await call("/api/containers/stop", { method: "POST", headers: { "Content-Type": "application/json" }, body: "not-json" }));
+    expect(status).toBe(400);
+    expect(data.error).toMatch(/invalid json/i);
+  });
   test("run requires image", async () => {
     const { status, data } = await json(await call("/api/containers/run", { method: "POST", body: "{}" }));
     expect(status).toBe(400);

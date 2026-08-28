@@ -15,13 +15,15 @@ export const stamp = async ({ container, n = 1, repo, prefix, exec, message }) =
   return { ok: true, prepared, committed, spawned };
 };
 
+export const pickCloneName = (wanted, taken = []) => (taken.includes(wanted) ? nextFreeNames(wanted, 1, taken)[0] : wanted);
+
 export const evolve = async ({ container, name, repo, message, spawn = true }) => {
   if (!container) throw new Error("container required");
   const repository = await nextMagmaTag(repo);
   const committed = await commitContainer({ container, repository, message: message || `evolve ${container}` });
   const wanted = slug(name || `${container}-${splitRef(repository).tag}`, "clone");
   const taken = (await listContainers()).map((c) => c.name);
-  const clone = taken.includes(wanted) ? nextFreeNames(wanted, 1, taken)[0] : wanted;
+  const clone = pickCloneName(wanted, taken);
   const stack = await writeStack({ name: clone, from: { service: clone, image: repository, containerName: clone } });
   const spawned = spawn !== false ? await runContainer({ image: repository, name: clone }) : null;
   return { ok: true, committed, stack, spawned };

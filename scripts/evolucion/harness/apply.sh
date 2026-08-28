@@ -22,7 +22,12 @@ for rel in "${arr[@]}"; do
   cp "$src" "$root/$rel"
 done
 (cd "$root/scripts" && bun test ./test)
-git -C "$root" add $files "scripts/evolucion/${nn}-${comp}.md" || true
+git -C "$root" add "scripts/evolucion/${nn}-${comp}.md" || true
+IFS=',' read -ra arr2 <<< "$files"
+for rel in "${arr2[@]}"; do
+  rel=${rel// /}
+  git -C "$root" add "$rel" || true
+done
 git -C "$root" add scripts/evolucion/README.md || true
 if git -C "$root" diff --cached --quiet; then
   echo "nothing to commit"

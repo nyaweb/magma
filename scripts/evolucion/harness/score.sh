@@ -75,7 +75,7 @@ for slot in slots:
     tested = bun_ok(slot) if chk else False
     plus, minus = plusminus(slot)
     diff = plus + minus
-    if chk and tested:
+    if chk and tested and (plus + minus) > 0:
         status = "PASS"
     elif chk:
         status = "PARTIAL"
