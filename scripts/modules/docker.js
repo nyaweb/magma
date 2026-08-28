@@ -3,7 +3,7 @@ import { SELF } from "./config.js";
 import { cap, nextFreeNames, requireRef, stripName } from "./names.js";
 import { containerFromPs, imageFromList, isProtectedName } from "./protect.js";
 import { assertFrom, recipe } from "./recipe.js";
-import { bumpSeq, makeEntry, matchLineage, peekSeq } from "./tags.js";
+import { bumpSeq, makeEntry, matchLineage, peekSeq, pruneLineage } from "./tags.js";
 
 export { MAX_N } from "./config.js";
 export { APT, recipe } from "./recipe.js";
@@ -39,8 +39,17 @@ const assertMutable = async (ref) => {
 const verb = (cmd, ref, force) => need([...cmd, ...(force ? ["-f"] : []), requireRef(ref)], cmd.join(" ")).then((out) => ({ ok: true, ref, out: out.trim() }));
 export const startContainer = (ref) => verb(["start"], ref);
 export const stopContainer = async (ref) => { requireRef(ref); await assertMutable(ref); return verb(["stop"], ref); };
-export const removeContainer = async (ref, { force = true } = {}) => { requireRef(ref); await assertMutable(ref); return verb(["rm"], ref, force); };
-export const removeImage = (ref, { force = false } = {}) => verb(["rmi"], requireRef(ref), force);
+export const removeContainer = async (ref, { force = true } = {}) => {
+  requireRef(ref); await assertMutable(ref);
+  const out = await verb(["rm"], ref, force);
+  await writeJson(LINEAGE, pruneLineage(await loadLineage(), ref));
+  return out;
+};
+export const removeImage = async (ref, { force = false } = {}) => {
+  const out = await verb(["rmi"], requireRef(ref), force);
+  await writeJson(LINEAGE, pruneLineage(await loadLineage(), ref));
+  return out;
+};
 
 export async function runContainer({ image, name, command, detach = true, tty = true }) {
   if (!image) throw new Error("image required");

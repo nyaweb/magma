@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { bumpSeq, makeEntry, matchLineage, peekSeq } from "../modules/tags.js";
+import { bumpSeq, makeEntry, matchLineage, peekSeq, pruneLineage } from "../modules/tags.js";
 
 describe("seq", () => {
   test("peek empty is :1", () => expect(peekSeq({}, "magma/snapshot")).toBe("magma/snapshot:1"));
@@ -22,6 +22,17 @@ describe("matchLineage", () => {
   test("by repo", () => expect(matchLineage(rows, "magma/x:2")).toHaveLength(1));
   test("by image prefix", () => expect(matchLineage(rows, "sha256:abcd")).toHaveLength(1));
   test("empty", () => expect(matchLineage(null, "lab")).toEqual([]));
+});
+
+describe("pruneLineage", () => {
+  const rows = [
+    { container: "lab", repository: "magma/lab:1", imageId: "sha256:abcd1234" },
+    { container: "other", repository: "magma/x:2", imageId: "sha256:ffff" },
+  ];
+  test("match", () => expect(pruneLineage(rows, "lab")).toHaveLength(1));
+  test("no match", () => expect(pruneLineage(rows, "missing")).toHaveLength(2));
+  test("empty", () => expect(pruneLineage(null, "lab")).toEqual([]));
+  test("prefix", () => expect(pruneLineage(rows, "sha256:abcd")).toHaveLength(1));
 });
 
 describe("makeEntry", () => {
