@@ -38,6 +38,16 @@ describe("handleApi", () => {
     expect(status).toBe(400);
     expect(data.error).toMatch(/inválido/);
   });
+  test("put not allowed", async () => {
+    const { status, data } = await json(await call("/api/health", { method: "PUT" }));
+    expect(status).toBe(405);
+    expect(data.error).toMatch(/Method/);
+  });
+  test("evolve needs container", async () => {
+    const { status, data } = await json(await call("/api/evolve", { method: "POST", body: "{}" }));
+    expect(status).toBe(400);
+    expect(data.error).toMatch(/container/);
+  });
   test("template yaml", async () => {
     const { status, data } = await json(await call("/api/stacks/template", { method: "POST", body: JSON.stringify({ service: "lab2", image: "debian:bookworm-slim" }) }));
     expect(status).toBe(200);

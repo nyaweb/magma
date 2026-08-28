@@ -24,6 +24,10 @@ describe("cap", () => {
 describe("nextFreeNames", () => {
   test("fills holes", () => expect(nextFreeNames("tmp", 2, ["tmp-1"])).toEqual(["tmp-2", "tmp-3"]));
   test("starts at 1", () => expect(nextFreeNames("lab", 3, [])).toEqual(["lab-1", "lab-2", "lab-3"]));
+  test("past a dense taken set", () => {
+    const taken = Array.from({ length: 20 }, (_, i) => `lab-${i + 1}`);
+    expect(nextFreeNames("lab", 2, taken)).toEqual(["lab-21", "lab-22"]);
+  });
 });
 
 describe("stripName", () => {
@@ -34,4 +38,7 @@ describe("splitRef", () => {
   test("repo:tag", () => expect(splitRef("debian:bookworm-slim")).toEqual({ repository: "debian", tag: "bookworm-slim" }));
   test("no tag", () => expect(splitRef("debian")).toEqual({ repository: "debian", tag: "<none>" }));
   test("join", () => expect(joinRef("debian", "12")).toBe("debian:12"));
+  test("registry port", () => expect(splitRef("localhost:5000/foo")).toEqual({ repository: "localhost:5000/foo", tag: "<none>" }));
+  test("registry port + tag", () => expect(splitRef("localhost:5000/foo:bar")).toEqual({ repository: "localhost:5000/foo", tag: "bar" }));
+  test("digest", () => expect(splitRef("sha256:deadbeef")).toEqual({ repository: "sha256:deadbeef", tag: "<none>" }));
 });

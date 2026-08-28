@@ -56,7 +56,9 @@ const POST = {
 };
 
 export async function handleApi(req, url) {
-  const fn = (req.method === "GET" ? GET : POST)[url.pathname];
+  const table = req.method === "GET" ? GET : req.method === "POST" ? POST : null;
+  if (!table) return json({ error: "Method Not Allowed" }, 405);
+  const fn = table[url.pathname];
   try {
     return fn ? json(await fn({ q: url.searchParams, b: req.method === "POST" ? await body(req) : null })) : json({ error: "Not Found" }, 404);
   } catch (err) { return fail(err); }

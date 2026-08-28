@@ -16,6 +16,7 @@ export const stamp = async ({ container, n = 1, repo, prefix, exec, message }) =
 };
 
 export const evolve = async ({ container, name, repo, message, spawn = true }) => {
+  if (!container) throw new Error("container required");
   const repository = await nextMagmaTag(repo);
   const committed = await commitContainer({ container, repository, message: message || `evolve ${container}` });
   const clone = slug(name || `${container}-${repository.split(":").pop()}`, "clone");

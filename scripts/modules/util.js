@@ -21,4 +21,7 @@ export const writeJson = (p, data) => Bun.write(p, JSON.stringify(data, null, 2)
 export const json = (data, status = 200) => Response.json(data, { status });
 
 let gate = Promise.resolve();
-export const locked = (fn) => (gate = gate.then(fn, fn));
+export const locked = (fn) => {
+  const run = () => Promise.resolve().then(fn);
+  return (gate = gate.then(run, run));
+};

@@ -13,7 +13,8 @@ export const safeName = (name) => {
 export const nextFreeNames = (prefix, n, taken = []) => {
   const base = slug(prefix), want = cap(n), out = [];
   const used = new Set(taken);
-  for (let i = 1; out.length < want && i < want + used.size + 2; i++) {
+  for (let i = 1; out.length < want; i++) {
+    if (i > 10_000) throw new Error("no hay nombres libres");
     const name = `${base}-${i}`;
     if (used.has(name)) continue;
     used.add(name);
@@ -26,9 +27,11 @@ export const stripName = (name) => String(name || "").replace(/^\//, "");
 
 export const splitRef = (ref) => {
   const s = String(ref || "").trim();
-  const i = s.lastIndexOf(":");
-  if (i <= 0) return { repository: s || "<none>", tag: "<none>" };
-  return { repository: s.slice(0, i), tag: s.slice(i + 1) };
+  if (!s) return { repository: "<none>", tag: "<none>" };
+  if (/^sha256:[0-9a-f]+$/i.test(s)) return { repository: s, tag: "<none>" };
+  const slash = s.lastIndexOf("/"), colon = s.lastIndexOf(":");
+  if (colon <= 0 || colon < slash) return { repository: s, tag: "<none>" };
+  return { repository: s.slice(0, colon), tag: s.slice(colon + 1) };
 };
 
 export const joinRef = (repository, tag) => `${repository || "<none>"}:${tag || "<none>"}`;
