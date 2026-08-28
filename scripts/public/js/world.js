@@ -112,8 +112,8 @@ export class World {
       g.fillStyle = s.fill; g.beginPath(); g.arc(n.x, n.y, r, 0, TAU); g.fill();
       (this.selected === n || this.hover === n) && (g.strokeStyle = "rgba(255,240,210,.85)", g.lineWidth = 2, g.beginPath(), g.arc(n.x, n.y, r + 6, 0, TAU), g.stroke());
       g.textAlign = "center";
-      g.fillStyle = "#f8efe6"; g.font = "12px Syne, sans-serif"; g.fillText(trim(n.label, 22), n.x, n.y + r + 16);
-      g.fillStyle = "rgba(255,220,190,.55)"; g.font = "10px IBM Plex Mono, monospace"; g.fillText(n.kind, n.x, n.y + r + 28);
+      g.fillStyle = "#f8efe6"; g.font = "12px system-ui, sans-serif"; g.fillText(trim(n.label, 22), n.x, n.y + r + 16);
+      g.fillStyle = "rgba(255,220,190,.55)"; g.font = "10px ui-monospace, monospace"; g.fillText(n.kind, n.x, n.y + r + 28);
     }
     for (const p of this.fx) { g.globalAlpha = p.life; g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.r, 0, TAU); g.fill(); g.globalAlpha = 1; }
   }

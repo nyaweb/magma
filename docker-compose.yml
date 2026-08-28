@@ -22,7 +22,6 @@ services:
         source: magma-data
         target: /data
     environment:
-      MAGMA_HOST: 0.0.0.0
       MAGMA_PORT: "3100"
       MAGMA_DATA: /data
       MAGMA_STACKS: /data/stacks

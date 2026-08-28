@@ -20,6 +20,7 @@ case "${1:-}" in
   evolve) post evolve "{\"container\":\"$2\",\"name\":\"${3:-}\",\"message\":\"${4:-evolve}\"}" ;;
   run-many) post run-many "{\"image\":\"$2\",\"n\":${3:-1},\"prefix\":\"${4:-lab}\"}" ;;
   stamp) post stamp "{\"container\":\"$2\",\"n\":${3:-1},\"exec\":\"${4:-}\",\"prefix\":\"${5:-$2}\"}" ;;
+  bake) post bake "{\"from\":\"${2:-debian:bookworm-slim}\",\"tag\":\"${3:-magma/slim:upgraded}\",\"n\":${4:-0}}" ;;
   compose-write)
     yaml=$( [ "${3:--}" = "-" ] && cat || cat "$3" )
     post stacks "$(printf '%s' "$yaml" | bun -e 'const yaml=await Bun.stdin.text(); console.log(JSON.stringify({name:Bun.argv[2],yaml}))' -- "$2")" ;;

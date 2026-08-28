@@ -80,8 +80,14 @@ const slug = (s, fb = "lab") => String(s || fb).toLowerCase().replace(/[^a-z0-9]
 
 export const runMany = async ({ image, n = 1, prefix = "lab" }) => {
   if (!image) throw new Error("image required");
-  const base = slug(prefix), out = [];
-  for (let i = 1; i <= cap(n); i++) out.push(await runContainer({ image, name: `${base}-${i}` }));
+  const base = slug(prefix), want = cap(n), out = [];
+  const taken = new Set((await listContainers()).map((c) => c.name));
+  for (let i = 1; out.length < want && i < want + taken.size + 2; i++) {
+    const name = `${base}-${i}`;
+    if (taken.has(name)) continue;
+    taken.add(name);
+    out.push(await runContainer({ image, name }));
+  }
   return { ok: true, image, n: out.length, ran: out };
 };
 

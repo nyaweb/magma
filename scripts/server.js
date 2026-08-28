@@ -32,14 +32,21 @@ async function pumpEvents() {
 }
 pumpEvents();
 
-const html = { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } };
+const security = {
+  "Cache-Control": "no-store",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "no-referrer",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' ws: wss:; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+};
+const html = { headers: { "Content-Type": "text/html; charset=utf-8", ...security } };
+const withSec = (res) => { for (const [k, v] of Object.entries(security)) res.headers.set(k, v); return res; };
 const server = serve({
   port: PORT, hostname: "0.0.0.0",
   async fetch(req, srv) {
     const url = new URL(req.url), p = url.pathname;
     return p === "/ws" ? (srv.upgrade(req) ? undefined : new Response("upgrade failed", { status: 500 }))
-      : p.startsWith("/api/") ? handleApi(req, url)
-      : p.startsWith("/public/") ? new Response(Bun.file(`.${p}`))
+      : p.startsWith("/api/") ? withSec(await handleApi(req, url))
+      : p.startsWith("/public/") ? withSec(new Response(Bun.file(`.${p}`)))
       : req.method === "GET" ? new Response(Bun.file("./public/index.html"), html)
       : new Response("Not Found", { status: 404 });
   },

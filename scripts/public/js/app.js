@@ -23,7 +23,7 @@ const post = (p, b) => call("POST", p, b);
 const q = (p, k, v) => `${p}?${k}=${encodeURIComponent(v || "")}`;
 
 const ACTS = {
-  container: (n) => n.item.protected ? ["inspect"] : ["commit", "stamp", "dup", "evolve", n.item.running ? "stop" : "start", "inspect", "rm"],
+  container: (n) => n.item.protected ? ["inspect"] : ["commit", "stamp", "evolve", n.item.running ? "stop" : "start", "inspect", "rm"],
   image: () => ["run", "spawn", "inspect", "rm"],
   stack: () => ["edit", "up", "down", "inspect", "rm"],
 };
@@ -44,9 +44,13 @@ world.onInspect = (node) => inspect(node);
 
 async function inspect(node) {
   show(panel); $("#panel-title").textContent = node.label; $("#panel-body").textContent = "cargando…";
-  $("#panel-body").textContent = node.kind === "stack"
-    ? (await get(q("/api/stacks/read", "name", node.item.name))).yaml
-    : JSON.stringify(await get(q("/api/inspect", "ref", node.kind === "image" ? node.item.ref : refOf(node))), null, 2);
+  if (node.kind === "stack") {
+    $("#panel-body").textContent = (await get(q("/api/stacks/read", "name", node.item.name))).yaml;
+    return;
+  }
+  const ref = node.kind === "image" ? node.item.ref : refOf(node);
+  const [info, lin] = await Promise.all([get(q("/api/inspect", "ref", ref)), get(q("/api/lineage", "ref", ref)).catch(() => [])]);
+  $("#panel-body").textContent = (Array.isArray(lin) && lin.length ? `linaje ${lin.length}\n${JSON.stringify(lin, null, 2)}\n\n` : "") + JSON.stringify(info, null, 2);
 }
 
 const applySnap = (s) => {
@@ -137,7 +141,6 @@ $("#btn-stamp").onclick = () => current?.kind === "container"
 const OPEN = new Set(["commit", "run", "edit", "inspect", "stamp", "spawn", "bake"]);
 const RADIAL = {
   commit: async (n) => openForm("commit", { name: refOf(n), image: (await get("/api/next-tag")).repository, message: "estado actual" }),
-  dup: async (n) => (world.split(n), await post("/api/duplicate", { container: refOf(n) }), "duplicado"),
   evolve: async (n) => (world.split(n), await post("/api/evolve", { container: refOf(n), message: "evolve" }).then((r) => `evolve → ${r.committed.repository}`)),
   start: async (n) => (await post("/api/containers/start", { ref: refOf(n) }), "start"),
   stop: async (n) => (await post("/api/containers/stop", { ref: refOf(n) }), "stop"),
