@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { asLabels, containerFromPs, imageFromList, isProtectedName, parseLabels } from "../modules/protect.js";
+import { asLabels, containerFromPs, imageFromList, isProtectedImageRef, isProtectedName, parseLabels } from "../modules/protect.js";
 
 describe("parseLabels", () => {
   test("empty", () => expect(parseLabels("")).toEqual({}));
@@ -47,4 +47,9 @@ describe("imageFromList", () => {
     expect(imageFromList({ ID: "1", Repository: "magma", Tag: "latest" }).protected).toBe(true);
     expect(imageFromList({ ID: "2", Repository: "magma/slim", Tag: "latest" }).protected).toBe(false);
   });
+});
+
+describe("isProtectedImageRef", () => {
+  test("magma tag", () => expect(isProtectedImageRef("magma:1.4.0")).toBe(true));
+  test("slim repo", () => expect(isProtectedImageRef("magma/slim:1.4.0")).toBe(false));
 });

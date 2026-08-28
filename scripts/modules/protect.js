@@ -1,5 +1,5 @@
 import { SELF } from "./config.js";
-import { joinRef, stripName } from "./names.js";
+import { joinRef, splitRef, stripName } from "./names.js";
 
 export const parseLabels = (raw) => {
   const out = {};
@@ -32,3 +32,5 @@ export const imageFromList = (i) => {
   const repository = i.Repository || "<none>", tag = i.Tag || "<none>";
   return { id: i.ID, repository, tag, ref: joinRef(repository, tag), size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", protected: repository === "magma", kind: "image" };
 };
+
+export const isProtectedImageRef = (ref) => splitRef(ref).repository === "magma";

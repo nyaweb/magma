@@ -1,7 +1,7 @@
 import { DATA, lines, need, readJson, writeJson, locked } from "./util.js";
 import { SELF } from "./config.js";
 import { cap, nextFreeNames, requireRef, stripName } from "./names.js";
-import { containerFromPs, imageFromList, isProtectedName } from "./protect.js";
+import { containerFromPs, imageFromList, isProtectedImageRef, isProtectedName } from "./protect.js";
 import { assertFrom, recipe } from "./recipe.js";
 import { bumpSeq, makeEntry, matchLineage, peekSeq, pruneLineage } from "./tags.js";
 
@@ -46,6 +46,7 @@ export const removeContainer = async (ref, { force = true } = {}) => {
   return out;
 };
 export const removeImage = async (ref, { force = false } = {}) => {
+  if (isProtectedImageRef(ref)) throw new Error(`${ref} está protegido`);
   const out = await verb(["rmi"], requireRef(ref), force);
   await writeJson(LINEAGE, pruneLineage(await loadLineage(), ref));
   return out;
