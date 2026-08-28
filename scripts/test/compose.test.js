@@ -16,4 +16,9 @@ describe("renderTemplate", () => {
   test("ports", () => {
     expect(renderTemplate({ service: "web", ports: ["8080:80"] })).toContain("8080:80");
   });
+  test("sanitizes service key", () => {
+    const y = renderTemplate({ service: "x:\n  evil", image: "debian:12" });
+    expect(y).not.toMatch(/\n  evil/);
+    expect(y).toContain("x-evil:");
+  });
 });

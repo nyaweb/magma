@@ -1,6 +1,6 @@
 import { DATA, lines, need, readJson, writeJson, locked } from "./util.js";
 import { SELF } from "./config.js";
-import { cap, nextFreeNames, stripName } from "./names.js";
+import { cap, nextFreeNames, requireRef, stripName } from "./names.js";
 import { containerFromPs, imageFromList, isProtectedName } from "./protect.js";
 import { assertFrom, recipe } from "./recipe.js";
 import { bumpSeq, makeEntry, matchLineage, peekSeq } from "./tags.js";
@@ -36,11 +36,11 @@ const assertMutable = async (ref) => {
   if (await isProtected(ref)) throw new Error(`${ref} está protegido`);
 };
 
-const verb = (cmd, ref, force) => need([...cmd, ...(force ? ["-f"] : []), ref], cmd.join(" ")).then((out) => ({ ok: true, ref, out: out.trim() }));
+const verb = (cmd, ref, force) => need([...cmd, ...(force ? ["-f"] : []), requireRef(ref)], cmd.join(" ")).then((out) => ({ ok: true, ref, out: out.trim() }));
 export const startContainer = (ref) => verb(["start"], ref);
-export const stopContainer = async (ref) => { await assertMutable(ref); return verb(["stop"], ref); };
-export const removeContainer = async (ref, { force = true } = {}) => { await assertMutable(ref); return verb(["rm"], ref, force); };
-export const removeImage = (ref, { force = false } = {}) => verb(["rmi"], ref, force);
+export const stopContainer = async (ref) => { requireRef(ref); await assertMutable(ref); return verb(["stop"], ref); };
+export const removeContainer = async (ref, { force = true } = {}) => { requireRef(ref); await assertMutable(ref); return verb(["rm"], ref, force); };
+export const removeImage = (ref, { force = false } = {}) => verb(["rmi"], requireRef(ref), force);
 
 export async function runContainer({ image, name, command, detach = true, tty = true }) {
   if (!image) throw new Error("image required");
@@ -55,13 +55,13 @@ export const execIn = async (ref, command) => {
   return need(["exec", ref, "sh", "-c", String(command)], "exec failed").then((out) => ({ ok: true, ref, out: out.trim() }));
 };
 
-export const runMany = async ({ image, n = 1, prefix = "lab" }) => {
+export const runMany = ({ image, n = 1, prefix = "lab" }) => locked(async () => {
   if (!image) throw new Error("image required");
   const taken = (await listContainers()).map((c) => c.name);
   const ran = [];
   for (const name of nextFreeNames(prefix, n, taken)) ran.push(await runContainer({ image, name }));
   return { ok: true, image, n: ran.length, ran };
-};
+});
 
 export const loadLineage = () => readJson(LINEAGE, []);
 export const lineageFor = async (ref) => matchLineage(await loadLineage(), ref);

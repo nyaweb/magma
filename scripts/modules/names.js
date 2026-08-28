@@ -2,7 +2,13 @@ import { MAX_N } from "./config.js";
 
 export const cap = (n) => Math.min(MAX_N, Math.max(1, Number(n) || 1));
 
-export const slug = (s, fb = "lab") => String(s || fb).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || fb;
+export const slug = (s, fb = "lab") => String(s || fb).toLowerCase().replace(/[^a-z0-9_]+/g, "-").replace(/^-|-$/g, "") || fb;
+
+export const requireRef = (ref) => {
+  const n = String(ref || "").trim();
+  if (!n) throw new Error("ref required");
+  return n;
+};
 
 export const safeName = (name) => {
   const n = String(name || "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");

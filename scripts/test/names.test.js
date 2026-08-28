@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { cap, joinRef, nextFreeNames, safeName, slug, splitRef, stripName } from "../modules/names.js";
+import { cap, joinRef, nextFreeNames, requireRef, safeName, slug, splitRef, stripName } from "../modules/names.js";
 import { MAX_N } from "../modules/config.js";
 
 describe("slug", () => {
   test("lowercases and dashes", () => expect(slug("Foo Bar")).toBe("foo-bar"));
   test("empty falls back", () => expect(slug("", "lab")).toBe("lab"));
   test("strips edges", () => expect(slug("--x--")).toBe("x"));
+  test("keeps underscore", () => expect(slug("my_lab")).toBe("my_lab"));
 });
 
 describe("safeName", () => {
@@ -28,6 +29,11 @@ describe("nextFreeNames", () => {
     const taken = Array.from({ length: 20 }, (_, i) => `lab-${i + 1}`);
     expect(nextFreeNames("lab", 2, taken)).toEqual(["lab-21", "lab-22"]);
   });
+});
+
+describe("requireRef", () => {
+  test("ok", () => expect(requireRef(" lab ")).toBe("lab"));
+  test("empty", () => expect(() => requireRef("")).toThrow("ref required"));
 });
 
 describe("stripName", () => {

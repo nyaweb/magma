@@ -2,6 +2,7 @@ import { serve } from "bun";
 import { handleApi, snapshot } from "./modules/api.js";
 import { docker } from "./modules/util.js";
 import { VERSION } from "./modules/config.js";
+import { resolvePublic } from "./modules/paths.js";
 
 const PORT = Number(process.env.MAGMA_PORT || 3100);
 const clients = new Set();
@@ -47,7 +48,10 @@ const server = serve({
     const url = new URL(req.url), p = url.pathname;
     return p === "/ws" ? (srv.upgrade(req) ? undefined : new Response("upgrade failed", { status: 500 }))
       : p.startsWith("/api/") ? withSec(await handleApi(req, url))
-      : p.startsWith("/public/") ? withSec(new Response(Bun.file(`.${p}`)))
+      : p.startsWith("/public/") ? (() => {
+        const path = resolvePublic(p);
+        return path ? withSec(new Response(Bun.file(path))) : new Response("Not Found", { status: 404 });
+      })()
       : req.method === "GET" ? new Response(Bun.file("./public/index.html"), html)
       : new Response("Not Found", { status: 404 });
   },

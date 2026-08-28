@@ -1,7 +1,7 @@
-import { slug } from "./names.js";
+import { nextFreeNames, slug, splitRef } from "./names.js";
 import { prepExec } from "./recipe.js";
 import {
-  buildImage, commitContainer, execIn, nextMagmaTag, runContainer, runMany,
+  buildImage, commitContainer, execIn, listContainers, nextMagmaTag, runContainer, runMany,
 } from "./docker.js";
 import { writeStack } from "./compose.js";
 
@@ -19,7 +19,9 @@ export const evolve = async ({ container, name, repo, message, spawn = true }) =
   if (!container) throw new Error("container required");
   const repository = await nextMagmaTag(repo);
   const committed = await commitContainer({ container, repository, message: message || `evolve ${container}` });
-  const clone = slug(name || `${container}-${repository.split(":").pop()}`, "clone");
+  const wanted = slug(name || `${container}-${splitRef(repository).tag}`, "clone");
+  const taken = (await listContainers()).map((c) => c.name);
+  const clone = taken.includes(wanted) ? nextFreeNames(wanted, 1, taken)[0] : wanted;
   const stack = await writeStack({ name: clone, from: { service: clone, image: repository, containerName: clone } });
   const spawned = spawn !== false ? await runContainer({ image: repository, name: clone }) : null;
   return { ok: true, committed, stack, spawned };

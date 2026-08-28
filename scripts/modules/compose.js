@@ -31,11 +31,12 @@ export function renderTemplate({
   containerName, restart = "unless-stopped", ports = [], volumes = [], environment = {},
   bake = false, from = "debian:bookworm-slim", dockerfile,
 } = {}) {
-  const cname = containerName || service;
+  const svc = safeName(service || "app");
+  const cname = safeName(containerName || svc);
   const img = bake ? (image.includes(":") && !image.startsWith("debian:") ? image : "magma/slim:upgraded") : image;
   const build = bake ? `    build:\n      dockerfile_inline: |\n${(dockerfile || recipe(from)).trim().split("\n").map((l) => "        " + l).join("\n")}\n` : "";
   return `services:
-  ${service}:
+  ${svc}:
     image: ${img}
 ${build}    container_name: ${cname}
     hostname: ${cname}
