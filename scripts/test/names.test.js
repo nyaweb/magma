@@ -1,0 +1,31 @@
+import { describe, expect, test } from "bun:test";
+import { cap, nextFreeNames, safeName, slug, stripName } from "../modules/names.js";
+import { MAX_N } from "../modules/config.js";
+
+describe("slug", () => {
+  test("lowercases and dashes", () => expect(slug("Foo Bar")).toBe("foo-bar"));
+  test("empty falls back", () => expect(slug("", "lab")).toBe("lab"));
+  test("strips edges", () => expect(slug("--x--")).toBe("x"));
+});
+
+describe("safeName", () => {
+  test("keeps underscore", () => expect(safeName("My_Lab")).toBe("my_lab"));
+  test("rejects junk", () => expect(() => safeName("???")).toThrow("inválido"));
+  test("rejects empty", () => expect(() => safeName("")).toThrow("inválido"));
+});
+
+describe("cap", () => {
+  test("default 1", () => expect(cap(undefined)).toBe(1));
+  test("clamps to MAX_N", () => expect(cap(9999)).toBe(MAX_N));
+  test("clamps floor", () => expect(cap(0)).toBe(1));
+  test("keeps 3", () => expect(cap(3)).toBe(3));
+});
+
+describe("nextFreeNames", () => {
+  test("fills holes", () => expect(nextFreeNames("tmp", 2, ["tmp-1"])).toEqual(["tmp-2", "tmp-3"]));
+  test("starts at 1", () => expect(nextFreeNames("lab", 3, [])).toEqual(["lab-1", "lab-2", "lab-3"]));
+});
+
+describe("stripName", () => {
+  test("drops leading slash", () => expect(stripName("/magma")).toBe("magma"));
+});

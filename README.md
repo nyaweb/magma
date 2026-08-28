@@ -67,4 +67,14 @@ WebSocket `/ws` emite `docker events`.
 - Orbe rojo = contenedor. Ámbar = imagen. Azul = stack. Gris = protegido.
 - Click = menú. Doble click = inspect.
 
+## Tests
+
+Desde `scripts/`:
+
+```bash
+bun test test
+```
+
+Los flujos contra Docker vivo están en `scripts/test/api.js` y `scripts/test/debian.js`; no corren con `bun test`.
+
 MIT.

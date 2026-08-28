@@ -1,37 +1,18 @@
 import { DATA, lines, need, readJson, writeJson, locked } from "./util.js";
+import { SELF } from "./config.js";
+import { cap, nextFreeNames, stripName } from "./names.js";
+import { containerFromPs, imageFromList, isProtectedName } from "./protect.js";
+import { recipe } from "./recipe.js";
+import { bumpSeq, matchLineage, peekSeq } from "./tags.js";
 
-export const APT = "apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*";
-export const recipe = (from = "debian:bookworm-slim") => `FROM ${from}\nRUN ${APT}\nCMD ["sleep", "infinity"]\n`;
+export { MAX_N } from "./config.js";
+export { APT, recipe } from "./recipe.js";
 
 const LINEAGE = `${DATA}/lineage.json`;
 const SEQ = `${DATA}/seq.json`;
-const SELF = process.env.MAGMA_CONTAINER_NAME || "magma";
-export const MAX_N = Math.min(200, Math.max(1, Number(process.env.MAGMA_MAX_N) || 32));
 
-const parseLabels = (raw) => {
-  const out = {};
-  for (const part of String(raw || "").split(",")) {
-    const i = part.indexOf("=");
-    if (i > 0) out[part.slice(0, i)] = part.slice(i + 1);
-  }
-  return out;
-};
-
-const labeled = (labels, name) => labels["io.magma.protected"] === "true" || name === SELF;
-
-export const listContainers = async () => lines(await need(["ps", "-a", "--format", "{{json .}}"], "docker ps")).map((c) => {
-  const name = (c.Names || c.Name || "").replace(/^\//, "");
-  return {
-    id: c.ID, name, image: c.Image, status: c.Status, state: c.State,
-    ports: c.Ports || "", running: String(c.State).toLowerCase() === "running",
-    protected: labeled(parseLabels(c.Labels), name), kind: "container",
-  };
-});
-
-export const listImages = async () => lines(await need(["images", "--format", "{{json .}}"], "docker images")).map((i) => {
-  const repository = i.Repository || "<none>", tag = i.Tag || "<none>";
-  return { id: i.ID, repository, tag, ref: `${repository}:${tag}`, size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", kind: "image" };
-});
+export const listContainers = async () => lines(await need(["ps", "-a", "--format", "{{json .}}"], "docker ps")).map((c) => containerFromPs(c));
+export const listImages = async () => lines(await need(["images", "--format", "{{json .}}"], "docker images")).map(imageFromList);
 
 export const inspect = async (ref) => {
   const d = JSON.parse(await need(["inspect", ref], "inspect failed"));
@@ -40,13 +21,12 @@ export const inspect = async (ref) => {
 };
 
 export const isProtected = async (ref) => {
-  const name = String(ref || "").replace(/^\//, "");
-  if (name === SELF) return true;
+  const name = stripName(ref);
+  if (isProtectedName(name, {}, SELF)) return true;
   try {
     const d = JSON.parse(await need(["inspect", "--format", "{{json .}}", ref], "inspect failed"));
     const x = Array.isArray(d) ? d[0] : d;
-    const labels = x.Config?.Labels || {};
-    return labels["io.magma.protected"] === "true" || String(x.Name || "").replace(/^\//, "") === SELF;
+    return isProtectedName(x.Name, x.Config?.Labels || {}, SELF);
   } catch {
     return false;
   }
@@ -75,30 +55,21 @@ export const execIn = async (ref, command) => {
   return need(["exec", ref, "sh", "-c", String(command)], "exec failed").then((out) => ({ ok: true, ref, out: out.trim() }));
 };
 
-const cap = (n) => Math.min(MAX_N, Math.max(1, Number(n) || 1));
-const slug = (s, fb = "lab") => String(s || fb).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || fb;
-
 export const runMany = async ({ image, n = 1, prefix = "lab" }) => {
   if (!image) throw new Error("image required");
-  const base = slug(prefix), want = cap(n), out = [];
-  const taken = new Set((await listContainers()).map((c) => c.name));
-  for (let i = 1; out.length < want && i < want + taken.size + 2; i++) {
-    const name = `${base}-${i}`;
-    if (taken.has(name)) continue;
-    taken.add(name);
-    out.push(await runContainer({ image, name }));
-  }
-  return { ok: true, image, n: out.length, ran: out };
+  const taken = (await listContainers()).map((c) => c.name);
+  const ran = [];
+  for (const name of nextFreeNames(prefix, n, taken)) ran.push(await runContainer({ image, name }));
+  return { ok: true, image, n: ran.length, ran };
 };
 
 export const loadLineage = () => readJson(LINEAGE, []);
-export const lineageFor = async (ref) => (await loadLineage()).filter((e) => [e.container, e.repository].includes(ref) || e.imageId?.startsWith(ref));
-export const peekTag = async (base = "magma/snapshot") => `${base}:${((await readJson(SEQ, {}))[base] || 0) + 1}`;
+export const lineageFor = async (ref) => matchLineage(await loadLineage(), ref);
+export const peekTag = async (base = "magma/snapshot") => peekSeq(await readJson(SEQ, {}), base);
 export const nextMagmaTag = (base = "magma/snapshot") => locked(async () => {
-  const seq = await readJson(SEQ, {});
-  seq[base] = (seq[base] || 0) + 1;
+  const { seq, tag } = bumpSeq(await readJson(SEQ, {}), base);
   await writeJson(SEQ, seq);
-  return `${base}:${seq[base]}`;
+  return tag;
 });
 
 export const commitContainer = ({ container, repository, message, author = "magma" }) => locked(async () => {

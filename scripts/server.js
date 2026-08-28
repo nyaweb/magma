@@ -1,6 +1,7 @@
 import { serve } from "bun";
 import { handleApi, snapshot } from "./modules/api.js";
 import { docker } from "./modules/util.js";
+import { VERSION } from "./modules/config.js";
 
 const PORT = Number(process.env.MAGMA_PORT || 3100);
 const clients = new Set();
@@ -58,4 +59,4 @@ const server = serve({
 });
 
 const ver = await docker(["version", "--format", "{{.Server.Version}}"]).then((r) => r.stdout.trim() || "?").catch(() => "?");
-console.log(`\n  MAGMA v1.4 | http://0.0.0.0:${server.port} | docker ${ver}\n`);
+console.log(`\n  MAGMA v${VERSION} | http://0.0.0.0:${server.port} | docker ${ver}\n`);

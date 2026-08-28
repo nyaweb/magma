@@ -1,10 +1,9 @@
 import { STACKS, run } from "./util.js";
-import { recipe } from "./docker.js";
+import { recipe } from "./recipe.js";
+import { safeName } from "./names.js";
 
-export const safeName = (name) => {
-  const n = String(name || "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-  return n || (() => { throw new Error("nombre de stack inválido"); })();
-};
+export { safeName };
+
 export const stackDir = (name) => `${STACKS}/${safeName(name)}`;
 export const stackFile = (name) => `${stackDir(name)}/docker-compose.yml`;
 const exists = (p) => Bun.file(p).exists();
