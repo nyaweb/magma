@@ -19,4 +19,8 @@ Harness: `scripts/evolucion/harness/`. Goals: `scripts/evolucion/goals/<componen
 
 `SLOTS` default 19, `CONCURRENCY` 5, `TIMEOUT` 420. Farm `/tmp/magma-evo/<component>/`.
 
-Winner: CHECK present + `bun test` green, smallest plus+minus on FILES. Tie: first in `done.log`. Do not rm/stop `magma`. Cap N 32.
+Winner: CHECK + `bun test` + **beats current** (`harness/beats.py`), then smallest plus+minus on FILES. Tie: first in `done.log`.
+
+Beats current: winner tests fail on `main` modules (new behavior), or `main` already passes and winner production files are strictly smaller. If current already fulfills the contract, do not replace.
+
+Farm `/var/tmp/magma-evo/<component>/`. Do not rm/stop `magma`. Cap N 32.

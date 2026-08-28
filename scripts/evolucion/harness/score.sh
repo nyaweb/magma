@@ -19,13 +19,13 @@ base="$farm/01"
 base="$root"
 
 tsv="$farm/score.tsv"
-echo -e "slot\tmodel\tstatus\tcheck\ttested\tdiff\tplus\tminus" > "$tsv"
+echo -e "slot\tmodel\tstatus\tcheck\ttested\tbeats\tdiff\tplus\tminus" > "$tsv"
 mapfile -t models < "$farm/models.txt"
 nmod=${#models[@]}
 
-python3 - "$farm" "$root" "$check" "$files" "$tsv" "$nmod" << 'PY'
+python3 - "$farm" "$root" "$check" "$files" "$tsv" "$nmod" "$here/beats.py" << 'PY'
 import os, sys, subprocess, hashlib
-farm, root, check, files, tsv, nmod = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], int(sys.argv[6])
+farm, root, check, files, tsv, nmod, beats_py = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], int(sys.argv[6]), sys.argv[7]
 models = open(os.path.join(farm, "models.txt")).read().splitlines()
 file_list = [f.strip() for f in files.split(",") if f.strip()]
 slots = sorted(d for d in os.listdir(farm) if d.isdigit())
@@ -75,13 +75,19 @@ for slot in slots:
     tested = bun_ok(slot) if chk else False
     plus, minus = plusminus(slot)
     diff = plus + minus
+    beats = False
     if chk and tested and (plus + minus) > 0:
-        status = "PASS"
+        br = subprocess.run(
+            ["python3", beats_py, root, os.path.join(farm, slot), files],
+            capture_output=True, text=True, timeout=180,
+        )
+        beats = br.returncode == 0
+        status = "PASS" if beats else "STALE"
     elif chk:
         status = "PARTIAL"
     else:
         status = "NO_RESULT"
-    rows.append((slot, model, status, chk, tested, diff, plus, minus))
+    rows.append((slot, model, status, chk, tested, beats, diff, plus, minus))
 
 with open(tsv, "a") as f:
     for r in rows:
@@ -92,7 +98,7 @@ if os.path.isfile(os.path.join(farm, "done.log")):
     done = [ln.split()[0] for ln in open(os.path.join(farm, "done.log")) if ln.strip()]
 
 winners = [r for r in rows if r[2] == "PASS"]
-winners.sort(key=lambda r: (r[5], done.index(r[0]) if r[0] in done else 10**6, r[0]))
+winners.sort(key=lambda r: (r[6], done.index(r[0]) if r[0] in done else 10**6, r[0]))
 open(os.path.join(farm, "winner.txt"), "w").write(winners[0][0] + "\n" if winners else "")
 print(f"pass={len(winners)} total={len(rows)} winner={winners[0][0] if winners else '-'}")
 for r in rows:

@@ -13,6 +13,12 @@ winner=$(cat "$farm/winner.txt" 2>/dev/null || true)
 goal="$root/scripts/evolucion/goals/${comp}.md"
 files=$(awk '/^FILES:/{sub(/^FILES: /,""); print; exit}' "$goal")
 nn=$(awk '/^NN:/{sub(/^NN: /,""); print; exit}' "$goal")
+beat_msg=$(python3 "$here/beats.py" "$root" "$farm/$winner" "$files") || {
+  echo "current already as good or better: $beat_msg"
+  echo "skip replace"
+  exit 1
+}
+echo "$beat_msg"
 IFS=',' read -ra arr <<< "$files"
 for rel in "${arr[@]}"; do
   rel=${rel// /}

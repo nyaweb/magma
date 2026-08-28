@@ -1,6 +1,10 @@
 # Evolución Magma
 
-Un contrato por componente. N copias del repo. Un modelo OpenCode por slot. Gana el diff más chico que pasa `bun test` y el CHECK. Empate: primero en `done.log`.
+Un contrato por componente. N copias del repo. Un modelo OpenCode por slot.
+
+Gana el diff más chico que: pasa `bun test`, pasa el CHECK, **y supera al código actual**. Empate: primero en `done.log`.
+
+Superar al actual: los tests del slot fallan sobre los módulos de `main` (comportamiento nuevo), o `main` ya pasa esos tests y el slot es **estrictamente más chico** en los archivos de producción. Si `main` ya cumple el contrato y no es más grande, no se reemplaza.
 
 Ronda 00 (tags/prune) ya shippeada: `dd9ad26`. Informe en `00-tags-prune.md`, tests en `00-tags-prune-tests.md`.
 
@@ -46,3 +50,5 @@ screen -ls
 ## Reglas
 
 Mismo prompt para todos los slots de un componente. Diff mínimo. Sin deps nuevas. Sin refactors ajenos. No tocar el contenedor `magma` ni crisol/dev.
+
+`apply.sh` llama `beats.py`: sin BEATS, no copia nada al repo.
