@@ -1,0 +1,16 @@
+You are competing on ONE Magma code change. Do not do other work.
+
+Goal: when a container or image is deleted, Magma must drop matching rows from lineage.
+
+Implement:
+1. In scripts/modules/tags.js add pruneLineage(entries, ref) that returns the entries that do NOT match ref. Matching must be the same rules as matchLineage (container, repository, or imageId prefix).
+2. Wire removeContainer and removeImage in scripts/modules/docker.js to load lineage, prune it for that ref, and write it back after a successful docker rm/rmi.
+3. Add bun tests for pruneLineage in scripts/test/tags.test.js (match, no match, empty, prefix).
+4. Keep existing tests green. Run: cd scripts && bun test test
+
+Rules: smallest correct diff. No unrelated refactors, no new dependencies, no format-only churn.
+
+When done write RESULT.md at the copy root with exactly:
+STATUS: PASS or FAIL
+FILES: comma-separated paths
+SUMMARY: one paragraph, what you changed and bun test result.
