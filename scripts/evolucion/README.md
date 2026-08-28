@@ -28,7 +28,10 @@ Paralelo (screen + orbes Magma):
 
 ```bash
 ./scripts/evolucion/harness/parallel.sh docker server ui magma
-screen -ls
+# 50 jobs, 8 screens, next slot when one frees:
+screen -dmS magma-pool ./scripts/evolucion/harness/pool.sh
+screen -ls          # evo-<comp>-<slot>
+screen -r evo-digest-01
 ```
 
 ## Componentes
