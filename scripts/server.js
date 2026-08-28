@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import { handleApi, snapshot } from "./modules/api.js";
+import { handleApi, invalidateSnapshot, snapshot } from "./modules/api.js";
 import { docker } from "./modules/util.js";
 import { VERSION } from "./modules/config.js";
 import { resolvePublic } from "./modules/paths.js";
@@ -13,7 +13,10 @@ const broadcast = (msg) => { for (const ws of clients) try { send(ws, msg); } ca
 let timer;
 const pushSnapshot = () => {
   clearTimeout(timer);
-  timer = setTimeout(() => snapshot().then((s) => broadcast({ type: "snapshot", ...s })).catch(() => {}), 200);
+  timer = setTimeout(() => {
+    invalidateSnapshot();
+    snapshot().then((s) => broadcast({ type: "snapshot", ...s })).catch(() => {});
+  }, 200);
 };
 
 async function pumpEvents() {

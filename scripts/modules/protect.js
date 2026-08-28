@@ -33,6 +33,11 @@ export const imageFromList = (i) => {
   return { id: i.ID, repository, tag, ref: joinRef(repository, tag), size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", protected: repository === "magma", kind: "image" };
 };
 
+export const looksLikeImageId = (ref) => {
+  const s = String(ref || "").trim();
+  return /^sha256:[0-9a-f]+$/i.test(s) || /^[0-9a-f]{12,64}$/i.test(s);
+};
+
 export const isProtectedImageRef = (ref, images) => {
   if (splitRef(ref).repository === "magma") return true;
   if (!Array.isArray(images) || !images.length) return false;

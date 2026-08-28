@@ -16,9 +16,19 @@ const body = async (req) => {
 };
 const tag = (repo) => nextMagmaTag(repo || "magma/snapshot");
 
+let snapAt = 0;
+let snapData = null;
+const SNAP_TTL = 200;
+
+export const invalidateSnapshot = () => { snapAt = 0; snapData = null; };
+
 export const snapshot = async () => {
+  const now = Date.now();
+  if (snapData && now - snapAt < SNAP_TTL) return snapData;
   const [containers, images, stacks] = await Promise.all([listContainers(), listImages(), listStacks()]);
-  return { containers, images, stacks };
+  snapData = { containers, images, stacks };
+  snapAt = now;
+  return snapData;
 };
 
 const GET = {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { asLabels, containerFromPs, imageFromList, isProtectedImageRef, isProtectedName, parseLabels } from "../modules/protect.js";
+import { asLabels, containerFromPs, imageFromList, isProtectedImageRef, isProtectedName, looksLikeImageId, parseLabels } from "../modules/protect.js";
 
 describe("parseLabels", () => {
   test("empty", () => expect(parseLabels("")).toEqual({}));
@@ -58,4 +58,11 @@ describe("isProtectedImageRef", () => {
   test("short id matches sha256 id", () => expect(isProtectedImageRef("c2ade414e734", [
     { id: "sha256:c2ade414e734abcd9999", ref: "magma:1.4.0", protected: true },
   ])).toBe(true));
+});
+
+describe("looksLikeImageId", () => {
+  test("sha256", () => expect(looksLikeImageId("sha256:abcd")).toBe(true));
+  test("short hex", () => expect(looksLikeImageId("c2ade414e734")).toBe(true));
+  test("repo tag is not an id", () => expect(looksLikeImageId("debian:bookworm-slim")).toBe(false));
+  test("magma tag is not an id", () => expect(looksLikeImageId("magma:1.4.0")).toBe(false));
 });
