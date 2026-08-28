@@ -52,7 +52,7 @@ const server = serve({
         const path = resolvePublic(p);
         return path ? withSec(new Response(Bun.file(path))) : new Response("Not Found", { status: 404 });
       })()
-      : req.method === "GET" ? new Response(Bun.file("./public/index.html"), html)
+      : req.method === "GET" && p === "/" ? new Response(Bun.file("./public/index.html"), html)
       : new Response("Not Found", { status: 404 });
   },
   websocket: {
