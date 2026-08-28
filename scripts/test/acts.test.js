@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { ACTS } from "../public/js/acts.js";
+import { ACTS, confirmRm } from "../public/js/acts.js";
 
 describe("ACTS", () => {
   test("protected image has no rm", () => {
@@ -13,4 +13,9 @@ describe("ACTS", () => {
   test("protected container stays inspect-only", () => {
     expect(ACTS.container({ item: { protected: true, running: true } })).toEqual(["inspect"]);
   });
+});
+
+test("confirm rm", () => {
+  expect(confirmRm(() => true)).toBe(true);
+  expect(confirmRm(() => false)).toBe(false);
 });
