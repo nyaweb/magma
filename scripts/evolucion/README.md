@@ -31,15 +31,15 @@ screen -ls
 
 | id | módulo | contrato | estado |
 |----|--------|----------|--------|
-| 00 | tags | `pruneLineage` + wire rm/rmi | hecho |
-| 01 | names | `nextFreeNames` trata `taken` en minúsculas | pendiente |
-| 02 | protect | trim labels; imagen `magma` protected | pendiente |
-| 03 | recipe | `assertFrom`: primer instruction es FROM | pendiente |
-| 04 | paths | `resolvePublic` rechaza NUL | pendiente |
-| 05 | util | `writeJson` crea el directorio padre | pendiente |
-| 06 | compose | `removeStack` poda lineage del nombre | pendiente |
-| 07 | api | JSON inválido en POST → 400 | pendiente |
-| 08 | actions | `pickCloneName` extraído y testeado | pendiente |
+| 00 | tags | `pruneLineage` + wire rm/rmi | hecho `dd9ad26` slot 02 |
+| 01 | names | `nextFreeNames` trata `taken` en minúsculas | hecho `f32a900` slot 01 |
+| 02 | protect | trim labels; imagen `magma` protected | hecho `f32a900` slot 09 |
+| 03 | recipe | `assertFrom`: primer instruction es FROM | hecho `f32a900` slot 07 |
+| 04 | paths | `resolvePublic` rechaza NUL | hecho `f32a900` slot 02 |
+| 05 | util | `writeJson` crea el directorio padre | hecho `5bd10a8` slot 09 |
+| 06 | compose | `removeStack` poda lineage del nombre | hecho `282c0ca` slot 06 |
+| 07 | api | JSON inválido en POST → 400 | hecho `5bd10a8` slot 14 |
+| 08 | actions | `pickCloneName` extraído y testeado | hecho `5bd10a8` slot 02 |
 
 `config.js` (3 líneas) no entra. `docker.js` ya evolucionó con tags. `server.js` / UI / `magma.sh` después de esta tanda.
 
