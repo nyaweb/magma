@@ -17,7 +17,7 @@ echo "parallel start $(date -Is) slots=$SLOTS conc=$CONCURRENCY"
 curl -sS -X POST "$MAGMA_API/run-many" -H 'Content-Type: application/json' \
   -d '{"image":"magma:1.4.0","n":4,"prefix":"evo"}' | tee "$FARM_ROOT/magma-orbs.json" || true
 
-comps=(util compose api actions)
+if (( $# )); then comps=("$@"); else comps=(docker server ui magma); fi
 for comp in "${comps[@]}"; do
   screen -S "evo-$comp" -X quit >/dev/null 2>&1 || true
   screen -dmS "evo-$comp" bash -lc "

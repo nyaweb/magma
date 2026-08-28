@@ -27,7 +27,7 @@ Farm: `/var/tmp/magma-evo/<componente>/` (disco; `/tmp` es tmpfs y se llena). In
 Paralelo (screen + orbes Magma):
 
 ```bash
-./scripts/evolucion/harness/parallel.sh
+./scripts/evolucion/harness/parallel.sh docker server ui magma
 screen -ls
 ```
 
@@ -44,8 +44,12 @@ screen -ls
 | 06 | compose | `removeStack` poda lineage del nombre | hecho `282c0ca` slot 06 |
 | 07 | api | JSON inválido en POST → 400 | hecho `5bd10a8` slot 14 |
 | 08 | actions | `pickCloneName` extraído y testeado | hecho `5bd10a8` slot 02 |
+| 09 | docker | `removeImage` respeta imagen `magma` protected | en curso |
+| 10 | server | 404 con headers CSP (`withSec`) | en curso |
+| 11 | ui | menú imagen protected sin rm | en curso |
+| 12 | magma.sh | comando `ready` | en curso |
 
-`config.js` (3 líneas) no entra. `docker.js` ya evolucionó con tags. `server.js` / UI / `magma.sh` después de esta tanda.
+`config.js` (3 líneas) no entra.
 
 ## Reglas
 
