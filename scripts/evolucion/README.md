@@ -44,10 +44,10 @@ screen -ls
 | 06 | compose | `removeStack` poda lineage del nombre | hecho `282c0ca` slot 06 |
 | 07 | api | JSON inválido en POST → 400 | hecho `5bd10a8` slot 14 |
 | 08 | actions | `pickCloneName` extraído y testeado | hecho `5bd10a8` slot 02 |
-| 09 | docker | `removeImage` respeta imagen `magma` protected | en curso |
-| 10 | server | 404 con headers CSP (`withSec`) | en curso |
-| 11 | ui | menú imagen protected sin rm | en curso |
-| 12 | magma.sh | comando `ready` | en curso |
+| 09 | docker | `removeImage` respeta imagen `magma` protected | hecho `d206c69` slot 02 |
+| 10 | server | 404 con headers CSP (`withSec`) | hecho `96e59dc` slot 01 |
+| 11 | ui | menú imagen protected sin rm | hecho `0dada29` slot 02 |
+| 12 | magma.sh | comando `ready` | hecho `335c14b` slot 01 |
 
 `config.js` (3 líneas) no entra.
 
