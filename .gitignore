@@ -2,3 +2,8 @@
 *.tgz
 *.tar.gz
 *.bak
+scripts/data/lineage.json
+scripts/data/seq.json
+scripts/stacks/*
+!scripts/stacks/.gitkeep
+node_modules

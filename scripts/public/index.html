@@ -1,45 +1,92 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Magma Docker Control</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vendor/xterm/xterm.css">
-  <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAGMA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/public/css/style.css" />
 </head>
 <body>
-  <div class="danger-strip" role="alert"><strong>UNSAFE PUBLIC MODE</strong><span lang="es">Sin autenticacion. Acceso Docker equivalente a root.</span></div>
-  <div class="shell">
-    <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#dashboard" aria-label="Magma dashboard"><span class="brand-mark">M</span><span>MAGMA<small>DOCKER CONTROL</small></span></a>
-      <nav id="nav" aria-label="Primary navigation">
-        <a href="#dashboard" data-view="dashboard">Overview</a>
-        <a href="#hosts" data-view="hosts">Hosts</a>
-        <a href="#containers" data-view="containers">Containers</a>
-        <a href="#images" data-view="images">Images</a>
-        <a href="#compose" data-view="compose">Compose</a>
-        <a href="#templates" data-view="templates">Templates</a>
-        <a href="#experiments" data-view="experiments">Experiments</a>
-      </nav>
-      <div class="sidebar-foot"><span class="pulse" id="eventPulse"></span><span id="eventState" role="status" aria-live="polite">event stream offline</span><small>Magma 0.1.0</small></div>
-    </aside>
-    <section class="workspace">
-      <header class="topbar">
-        <button class="mobile-menu" id="menuButton" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">M</button>
-        <div><span class="eyebrow" id="viewEyebrow">CONTROL PLANE</span><h1 id="viewTitle">Overview</h1></div>
-        <div class="host-control"><label for="hostSelect">ACTIVE HOST</label><select id="hostSelect"></select><button class="icon-button" id="refreshButton" title="Refresh" aria-label="Refresh">R</button></div>
-      </header>
-      <main id="content" tabindex="-1"><div class="loading-block">Initializing Magma...</div></main>
-    </section>
+  <canvas id="world"></canvas>
+  <div id="heat"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="logo">●</span>
+      <div>
+        <strong>MAGMA</strong>
+        <em>plantilla → N run</em>
+      </div>
+    </div>
+    <nav class="filters">
+      <button data-filter="all" class="on">todo</button>
+      <button data-filter="container">contenedores</button>
+      <button data-filter="image">imágenes</button>
+      <button data-filter="stack">stacks</button>
+    </nav>
+    <div class="stats">
+      <span id="stat-c">0 c</span>
+      <span id="stat-i">0 img</span>
+      <span id="stat-s">0 yml</span>
+      <span id="ws" class="off">ws</span>
+    </div>
+  </header>
+
+  <aside class="dock">
+    <button id="btn-refresh" title="refrescar">↻</button>
+    <button id="btn-run" title="correr imagen">＋</button>
+    <button id="btn-stack" title="nuevo compose">▤</button>
+    <button id="btn-auto" title="commit automático">◎</button>
+    <button id="btn-evolve" title="evolucionar contenedor">🧬</button>
+    <button id="btn-stamp" title="stamp: exec + 1 commit + N run">×</button>
+    <button id="btn-bake" title="build Dockerfile + N run">△</button>
+  </aside>
+
+  <div id="radial" class="hidden">
+    <button data-act="commit">commit</button>
+    <button data-act="dup">duplicar</button>
+    <button data-act="evolve">evolucionar</button>
+    <button data-act="start">start</button>
+    <button data-act="stop">stop</button>
+    <button data-act="run">correr</button>
+    <button data-act="stamp">×N</button>
+    <button data-act="spawn">×N img</button>
+    <button data-act="edit">editar</button>
+    <button data-act="up">up</button>
+    <button data-act="down">down</button>
+    <button data-act="inspect">ver</button>
+    <button data-act="rm" class="danger">borrar</button>
   </div>
-  <dialog id="modal" aria-labelledby="modalTitle"><div class="modal-card"><header><div><span class="eyebrow">MAGMA OPERATION</span><h2 id="modalTitle"></h2></div><button type="button" id="modalClose" class="close-button" aria-label="Close">X</button></header><div id="modalBody" class="modal-body"></div></div></dialog>
-  <dialog id="terminalModal" class="terminal-dialog" aria-labelledby="terminalTitle"><div class="terminal-card"><header><div><span class="eyebrow">BUNTTY SESSION</span><h2 id="terminalTitle">Terminal</h2></div><div class="terminal-actions"><span id="terminalState" role="status" aria-live="polite">connecting</span><button type="button" id="terminalControl" class="button">Take control</button><button type="button" id="terminalClose" class="close-button" aria-label="Close">X</button></div></header><div id="terminal"></div></div></dialog>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <script src="/vendor/xterm/xterm.js"></script>
-  <script src="/vendor/addon-fit/addon-fit.js"></script>
-  <script type="module" src="/js/app.js"></script>
+
+  <section id="panel" class="hidden">
+    <header>
+      <h2 id="panel-title">detalle</h2>
+      <button id="panel-close">✕</button>
+    </header>
+    <pre id="panel-body"></pre>
+  </section>
+
+  <section id="modal" class="hidden">
+    <form id="form">
+      <h2 id="form-title">nuevo</h2>
+      <label>nombre <input name="name" autocomplete="off" /></label>
+      <label>imagen / repo:tag <input name="image" placeholder="debian:bookworm-slim" /></label>
+      <label>mensaje commit <input name="message" placeholder="apt listo, snapshot N" /></label>
+      <label class="full" id="yaml-label">yaml
+        <textarea name="yaml" rows="12" spellcheck="false"></textarea>
+      </label>
+      <div class="row">
+        <button type="button" id="form-cancel">cancelar</button>
+        <button type="submit">hacer</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="toast"></div>
+  <p id="hint">arrastrá los orbes · click para el menú · doble click inspecciona</p>
+
+  <script type="module" src="/public/js/app.js"></script>
 </body>
 </html>
