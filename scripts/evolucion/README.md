@@ -52,7 +52,13 @@ screen -r evo-digest-01
 | 11 | ui | menú imagen protected sin rm | hecho `0dada29` slot 02 |
 | 12 | magma.sh | comando `ready` | hecho `335c14b` slot 01 |
 
-`config.js` (3 líneas) no entra.
+| 13 | digest | `rmi` por digest/id de `magma` | hecho `ef0b280` + short-id `3846f1e` |
+| 14 | runself | `run --name magma` | hecho `a425353` |
+| 15 | startprot | `start` de protected | merge `576cab9` |
+| 16 | linlock | lineage prune en `locked()` | merge `576cab9` |
+| 17 | uiconfirm | confirm al `rm` | hecho `9303bc5` |
+
+`config.js` (3 líneas) no entra. Default `MAGMA_MAX_N=50`.
 
 ## Reglas
 
