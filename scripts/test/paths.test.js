@@ -11,5 +11,6 @@ describe("resolvePublic", () => {
   test("ok", () => expect(resolvePublic("/public/app.js", root)).toBe(join(root, "app.js")));
   test("blocks ..", () => expect(resolvePublic("/public/../modules/api.js", root)).toBeNull());
   test("blocks encoded ..", () => expect(resolvePublic("/public/%2e%2e/secret", root)).toBeNull());
+  test("blocks encoded nul", () => expect(resolvePublic("/public/%00app.js", root)).toBeNull());
   test("empty", () => expect(resolvePublic("/public/", root)).toBeNull());
 });

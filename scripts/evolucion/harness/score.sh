@@ -6,7 +6,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
 evo="$root/scripts/evolucion"
 goal="$evo/goals/${comp}.md"
-farm="/tmp/magma-evo/$comp"
+farm="${FARM_ROOT:-/var/tmp/magma-evo}/$comp"
 [[ -d $farm ]] || { echo "no farm $farm"; exit 1; }
 
 check=$(awk '/^CHECK:/{sub(/^CHECK: /,""); print; exit}' "$goal")
@@ -57,7 +57,7 @@ def has_check(slot):
     return False
 
 def bun_ok(slot):
-    r = subprocess.run(["bun", "test", "test"], cwd=os.path.join(farm, slot, "scripts"),
+    r = subprocess.run(["bun", "test", "./test"], cwd=os.path.join(farm, slot, "scripts"),
                        capture_output=True, text=True, timeout=120)
     return r.returncode == 0
 

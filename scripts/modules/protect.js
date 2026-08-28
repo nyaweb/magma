@@ -5,7 +5,7 @@ export const parseLabels = (raw) => {
   const out = {};
   for (const part of String(raw || "").split(",")) {
     const i = part.indexOf("=");
-    if (i > 0) out[part.slice(0, i)] = part.slice(i + 1);
+    if (i > 0) out[part.slice(0, i).trim()] = part.slice(i + 1).trim();
   }
   return out;
 };
@@ -30,5 +30,5 @@ export const containerFromPs = (c, self = SELF) => {
 
 export const imageFromList = (i) => {
   const repository = i.Repository || "<none>", tag = i.Tag || "<none>";
-  return { id: i.ID, repository, tag, ref: joinRef(repository, tag), size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", kind: "image" };
+  return { id: i.ID, repository, tag, ref: joinRef(repository, tag), size: i.Size || "", dangling: repository === "<none>" || tag === "<none>", protected: repository === "magma", kind: "image" };
 };

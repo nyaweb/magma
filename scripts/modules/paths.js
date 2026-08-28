@@ -4,6 +4,7 @@ export const resolvePublic = (urlPath, root = "public") => {
   const base = resolve(root);
   let rel = String(urlPath || "");
   try { rel = decodeURIComponent(rel); } catch { return null; }
+  if (rel.includes("\0")) return null;
   rel = rel.replace(/^\/public\/?/, "");
   if (!rel || rel.split(/[/\\]/).includes("..")) return null;
   const path = resolve(base, rel);

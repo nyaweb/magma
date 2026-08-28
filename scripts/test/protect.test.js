@@ -27,7 +27,7 @@ describe("containerFromPs", () => {
     expect(c).toMatchObject({ name: "lab", running: true, protected: false, kind: "container" });
   });
   test("flags protected", () => {
-    const c = containerFromPs({ ID: "x", Names: "/magma", Image: "magma:1.4.0", State: "running", Labels: "io.magma.protected=true" });
+    const c = containerFromPs({ ID: "x", Names: "other", Image: "magma:1.4.0", State: "running", Labels: " io.magma.protected = true " });
     expect(c.protected).toBe(true);
   });
   test("inspect-style label object", () => {
@@ -41,6 +41,10 @@ describe("imageFromList", () => {
     expect(imageFromList({ ID: "1", Repository: "debian", Tag: "bookworm-slim" }).ref).toBe("debian:bookworm-slim");
   });
   test("dangling", () => {
-    expect(imageFromList({ ID: "1", Repository: "<none>", Tag: "<none>" }).dangling).toBe(true);
+    expect(imageFromList({ ID: "1", Repository: "<none>", Tag: "<none>" })).toMatchObject({ dangling: true, protected: false });
+  });
+  test("protects only magma repository", () => {
+    expect(imageFromList({ ID: "1", Repository: "magma", Tag: "latest" }).protected).toBe(true);
+    expect(imageFromList({ ID: "2", Repository: "magma/slim", Tag: "latest" }).protected).toBe(false);
   });
 });

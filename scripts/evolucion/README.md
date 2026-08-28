@@ -18,7 +18,14 @@ Ronda 00 (tags/prune) ya shippeada: `dd9ad26`. Informe en `00-tags-prune.md`, te
 
 Overrides: `SLOTS=50 CONCURRENCY=5 TIMEOUT=420`.
 
-Farm: `/tmp/magma-evo/<componente>/`. Informes: `scripts/evolucion/<nn>-<componente>.md`.
+Farm: `/var/tmp/magma-evo/<componente>/` (disco; `/tmp` es tmpfs y se llena). Informes: `scripts/evolucion/<nn>-<componente>.md`.
+
+Paralelo (screen + orbes Magma):
+
+```bash
+./scripts/evolucion/harness/parallel.sh
+screen -ls
+```
 
 ## Componentes
 

@@ -18,6 +18,9 @@ describe("recipe", () => {
 });
 
 describe("assertFrom", () => {
-  test("ok", () => expect(assertFrom("FROM debian\n")).toBe("FROM debian\n"));
-  test("rejects", () => expect(() => assertFrom("RUN echo")).toThrow("FROM"));
+  test("FROM first", () => expect(assertFrom("FROM debian\n")).toBe("FROM debian\n"));
+  test("comment then FROM", () => expect(assertFrom("# comment\nFROM debian\n")).toBe("# comment\nFROM debian\n"));
+  test("RUN then FROM rejects", () => expect(() => assertFrom("RUN echo\nFROM debian\n")).toThrow("FROM"));
+  test("commented FROM rejects", () => expect(() => assertFrom("# FROM debian\n")).toThrow("FROM"));
+  test("empty rejects", () => expect(() => assertFrom("")).toThrow("FROM"));
 });

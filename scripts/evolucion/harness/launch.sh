@@ -7,7 +7,7 @@ root=$(cd "$here/../../.." && pwd)
 evo="$root/scripts/evolucion"
 goal="$evo/goals/${comp}.md"
 [[ -f $goal ]] || { echo "no goal $goal"; exit 1; }
-farm="/tmp/magma-evo/$comp"
+farm="${FARM_ROOT:-/var/tmp/magma-evo}/$comp"
 slots=${SLOTS:-19}
 conc=${CONCURRENCY:-5}
 mapfile -t models < "$here/models.txt"

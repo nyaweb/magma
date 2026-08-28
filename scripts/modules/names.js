@@ -18,7 +18,7 @@ export const safeName = (name) => {
 
 export const nextFreeNames = (prefix, n, taken = []) => {
   const base = slug(prefix), want = cap(n), out = [];
-  const used = new Set(taken);
+  const used = new Set(taken.map((name) => String(name || "").toLowerCase()));
   for (let i = 1; out.length < want; i++) {
     if (i > 10_000) throw new Error("no hay nombres libres");
     const name = `${base}-${i}`;

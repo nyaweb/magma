@@ -4,7 +4,10 @@ set -euo pipefail
 comp=${1:?component}
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-farm="/tmp/magma-evo/$comp"
+mkdir -p "${FARM_ROOT:-/var/tmp/magma-evo}"
+exec 9>"${FARM_ROOT:-/var/tmp/magma-evo}/git.lock"
+flock 9
+farm="${FARM_ROOT:-/var/tmp/magma-evo}/$comp"
 winner=$(cat "$farm/winner.txt" 2>/dev/null || true)
 [[ -n $winner ]] || { echo "no winner"; exit 1; }
 goal="$root/scripts/evolucion/goals/${comp}.md"
@@ -18,7 +21,7 @@ for rel in "${arr[@]}"; do
   mkdir -p "$(dirname "$root/$rel")"
   cp "$src" "$root/$rel"
 done
-(cd "$root/scripts" && bun test test)
+(cd "$root/scripts" && bun test ./test)
 git -C "$root" add $files "scripts/evolucion/${nn}-${comp}.md" || true
 git -C "$root" add scripts/evolucion/README.md || true
 if git -C "$root" diff --cached --quiet; then

@@ -25,6 +25,8 @@ describe("cap", () => {
 describe("nextFreeNames", () => {
   test("fills holes", () => expect(nextFreeNames("tmp", 2, ["tmp-1"])).toEqual(["tmp-2", "tmp-3"]));
   test("starts at 1", () => expect(nextFreeNames("lab", 3, [])).toEqual(["lab-1", "lab-2", "lab-3"]));
+  test("ignores taken case", () => expect(nextFreeNames("lab", 1, ["Lab-1"])).toEqual(["lab-2"]));
+  test("mixed case prefix still slugs", () => expect(nextFreeNames("LaB", 1, [])).toEqual(["lab-1"]));
   test("past a dense taken set", () => {
     const taken = Array.from({ length: 20 }, (_, i) => `lab-${i + 1}`);
     expect(nextFreeNames("lab", 2, taken)).toEqual(["lab-21", "lab-22"]);
