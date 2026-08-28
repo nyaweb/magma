@@ -18,6 +18,7 @@ describe("safeName", () => {
 describe("cap", () => {
   test("default 1", () => expect(cap(undefined)).toBe(1));
   test("clamps to MAX_N", () => expect(cap(9999)).toBe(MAX_N));
+  test("default MAX_N is 50", () => expect(MAX_N).toBe(50));
   test("clamps floor", () => expect(cap(0)).toBe(1));
   test("keeps 3", () => expect(cap(3)).toBe(3));
 });

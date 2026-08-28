@@ -12,7 +12,7 @@ Quien alcanza el puerto tiene el socket de Docker. No lo publiques a Internet.
 Usa firewall, Tailscale o bind a loopback.
 
 Magma no se deja parar, borrar ni commitear a sí mismo (`io.magma.protected`).
-`stamp` / `bake` / `run-many` cortan en `MAGMA_MAX_N` (32 por defecto).
+`stamp` / `bake` / `run-many` cortan en `MAGMA_MAX_N` (50 por defecto).
 
 ```bash
 MAGMA_BIND_ADDRESS=127.0.0.1 MAGMA_PUBLIC_PORT=3100 docker compose up -d --build
@@ -31,7 +31,7 @@ Abre `http://HOST:3100`.
 MAGMA_BIND_ADDRESS=0.0.0.0
 MAGMA_PUBLIC_PORT=3100
 MAGMA_VOLUME_NAME=magma-data
-MAGMA_MAX_N=32
+MAGMA_MAX_N=50
 DOCKER_SOCKET=/var/run/docker.sock
 ```
 

@@ -26,7 +26,7 @@ services:
       MAGMA_DATA: /data
       MAGMA_STACKS: /data/stacks
       MAGMA_CONTAINER_NAME: magma
-      MAGMA_MAX_N: ${MAGMA_MAX_N:-32}
+      MAGMA_MAX_N: ${MAGMA_MAX_N:-50}
     labels:
       io.magma.managed: "true"
       io.magma.protected: "true"

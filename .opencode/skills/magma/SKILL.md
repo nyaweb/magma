@@ -20,4 +20,4 @@ curl -sS ${MAGMA_API:-http://127.0.0.1:3100/api}/snapshot
 
 Mutating POST JSON to `/api/commit`, `/stamp`, `/bake`, `/evolve`, `/containers/run`.
 
-Do not stop, rm, commit, stamp, or exec container `magma` (protected). Cap N at 32; prefer 1–3. Clean up `t-*` when done. No auth: treat the API as root.
+Do not stop, rm, commit, stamp, or exec container `magma` (protected). Cap N at 50; prefer 1–3. Clean up `t-*` when done. No auth: treat the API as root.
