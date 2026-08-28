@@ -6,8 +6,9 @@ ref() { post "$1" "{\"ref\":\"$2\"}"; }
 
 case "${1:-}" in
   ""|-h|--help)
-    printf '%s\n' "magma.sh ping|containers|images|stacks|inspect <ref>|start|stop|rm <ref>|rmi <img>|run <img> [name]|run-many <img> <n> [prefix]|commit <c> <repo:tag> [msg]|batch <c> <n> [msg]|stamp <c> <n> [apt|cmd] [prefix]|bake [from] [tag] [n]|evolve <c> [name] [msg]|lineage [ref]|compose-write <name> [file|-]|compose-up|compose-down|compose-rm <name>" ;;
+    printf '%s\n' "magma.sh ping|ready|containers|images|stacks|inspect <ref>|start|stop|rm <ref>|rmi <img>|run <img> [name]|run-many <img> <n> [prefix]|commit <c> <repo:tag> [msg]|batch <c> <n> [msg]|stamp <c> <n> [apt|cmd] [prefix]|bake [from] [tag] [n]|evolve <c> [name] [msg]|lineage [ref]|compose-write <name> [file|-]|compose-up|compose-down|compose-rm <name>" ;;
   ping) get health ;;
+  ready) get ready ;;
   containers|images|stacks) get "$1" ;;
   inspect) get "inspect?ref=$2" ;;
   lineage) get "lineage${2:+?ref=$2}" ;;
